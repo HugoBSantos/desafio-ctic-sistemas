@@ -79,7 +79,7 @@ def lista_alunos(df: pd.DataFrame, sit_disciplina: str, filtro_codigo: list, fil
         )
     
 if __name__ == "__main__":
-    st.header("📊 Dados dos alunos da EC5MA")
+    st.title("📊 Dados dos alunos da EC5MA")
     df_alunos = pd.read_csv(Path(FILE_PATH), encoding="latin1", sep="\t")
     
     disciplinas = {
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         disciplinas.values()
     )
     
-    st.markdown("### Lista de alunos por disciplina")
+    st.header("Lista de alunos por disciplina")
     matriculados, em_ajuste = st.tabs(["Matriculados", "Em ajuste"])
     
     with matriculados:
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         )
     st.divider()
     
-    st.markdown("### Grade curricular de cada aluno")
+    st.header("Grade curricular de cada aluno")
     
     cols_disciplinas = ["CODIGO_DISCIPLINA", "DISCIPLINA", "SIT_DISCIPLINA"]
     grade_aluno = st.selectbox(
@@ -131,3 +131,19 @@ if __name__ == "__main__":
     st.write(f"Exibindo a grade curricular do(a) aluno(a) {grade_aluno}:")
     st.dataframe(df_alunos[df_alunos["NOME_ABREV_ALUNO"] == grade_aluno][cols_disciplinas]
                  .sort_values(by="SIT_DISCIPLINA", ascending=False))
+    st.divider()
+    
+    df_alunos_disciplina = (
+        df_alunos.groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
+        .count()
+        .reset_index()
+        .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
+        .sort_values(by="TOTAL")
+    )
+    
+    fig_alunos_disciplina = px.bar(
+        df_alunos_disciplina, x="TOTAL", y="DISCIPLINA",
+        orientation="h", text="TOTAL", title="Total de alunos por disciplina",
+        labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
+    )
+    st.plotly_chart(fig_alunos_disciplina, use_container_width=True)
