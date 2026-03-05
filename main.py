@@ -154,3 +154,26 @@ if __name__ == "__main__":
             labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
         )
         st.plotly_chart(fig_alunos_disciplina, use_container_width=True)
+        
+        # DISCIPLINAS COM MAIS AJUSTES
+        df_disciplinas_ajustes = (
+            df_filtrado[df_filtrado["SIT_DISCIPLINA"] == "AJUSTE"]
+            .groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
+            .count()
+            .reset_index()
+            .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
+            .sort_values(by="TOTAL")
+        )
+        
+        fig_disciplinas_ajustes = px.bar(
+            df_disciplinas_ajustes, x="TOTAL", y="DISCIPLINA",
+            orientation="h", text="TOTAL", title="Disciplinas com mais ajustes",
+            labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
+        )
+        st.plotly_chart(fig_disciplinas_ajustes, use_container_width=True)
+
+        # % DE ALUNOS EM AJUSTE POR CURSO
+
+        # RANKING DE DISCIPLINAS
+
+        # PERCENTUAL DE AJUSTE
