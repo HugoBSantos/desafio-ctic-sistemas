@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from pathlib import Path
+from fpdf import FPDF
+import io
 
 FILE_PATH = Path().cwd() / "data" / "BASE_TESTE_HUGO1.csv"
 
@@ -14,6 +16,34 @@ def filtrar_df(df: pd.DataFrame, coluna: str, valores: list) -> pd.DataFrame:
     if not valores:
         return df
     return df[df[coluna].isin(valores)]
+
+def exportar_excel(df: pd.DataFrame) -> bytes:
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="EC5MA")
+    return buffer.getvalue()
+
+def exportar_pdf(df: pd.DataFrame) -> bytes:
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", size=8)
+
+    col_width = pdf.epw / len(df.columns)
+
+    # Cabeçalho
+    pdf.set_font("Helvetica", style="B", size=8)
+    for col in df.columns:
+        pdf.cell(col_width, 6, str(col), border=1)
+    pdf.ln()
+
+    # Linhas
+    pdf.set_font("Helvetica", size=8)
+    for _, row in df.iterrows():
+        for val in row:
+            pdf.cell(col_width, 6, str(val), border=1)
+        pdf.ln()
+
+    return bytes(pdf.output())
     
 if __name__ == "__main__":
     st.header("📊 Dados dos alunos da EC5MA")
@@ -47,6 +77,23 @@ if __name__ == "__main__":
         df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
         
         st.dataframe(df_filtrado)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.download_button(
+                label="⬇️ Exportar Excel",
+                data=exportar_excel(df_filtrado),
+                file_name="matriculados.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        with col2:
+            st.download_button(
+                label="⬇️ Exportar PDF",
+                data=exportar_pdf(df_filtrado),
+                file_name="matriculados.pdf",
+                mime="application/pdf"
+            )
     with em_ajuste:
         st.markdown("#### Alunos em situação de ajuste por disciplina")
 
@@ -55,3 +102,20 @@ if __name__ == "__main__":
         df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
         
         st.dataframe(df_filtrado)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.download_button(
+                label="⬇️ Exportar Excel",
+                data=exportar_excel(df_filtrado),
+                file_name="em_ajuste.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        with col2:
+            st.download_button(
+                label="⬇️ Exportar PDF",
+                data=exportar_pdf(df_filtrado),
+                file_name="em_ajuste.pdf",
+                mime="application/pdf"
+            )
