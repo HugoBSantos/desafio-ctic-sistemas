@@ -103,7 +103,7 @@ if __name__ == "__main__":
     matriculados, em_ajuste = st.tabs(["Matriculados", "Em ajuste"])
     
     with matriculados:
-        st.markdown("#### Alunos matriculados por disciplina")
+        st.markdown("##### Alunos matriculados por disciplina")
         lista_alunos(
             df=df_alunos,
             sit_disciplina="cursando",
@@ -111,10 +111,23 @@ if __name__ == "__main__":
             filtro_disciplina=filtro_disciplina
         )
     with em_ajuste:
-        st.markdown("#### Alunos em situação de ajuste por disciplina")
+        st.markdown("##### Alunos em situação de ajuste por disciplina")
         lista_alunos(
             df=df_alunos,
             sit_disciplina="ajuste",
             filtro_codigo=filtro_codigo,
             filtro_disciplina=filtro_disciplina
         )
+    st.divider()
+    
+    st.markdown("### Grade curricular de cada aluno")
+    
+    cols_disciplinas = ["CODIGO_DISCIPLINA", "DISCIPLINA", "SIT_DISCIPLINA"]
+    grade_aluno = st.selectbox(
+        "Selecione o aluno:",
+        df_alunos["NOME_ABREV_ALUNO"].unique()
+    )
+    
+    st.write(f"Exibindo a grade curricular do(a) aluno(a) {grade_aluno}:")
+    st.dataframe(df_alunos[df_alunos["NOME_ABREV_ALUNO"] == grade_aluno][cols_disciplinas]
+                 .sort_values(by="SIT_DISCIPLINA", ascending=False))
