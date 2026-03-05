@@ -5,6 +5,12 @@ from pathlib import Path
 from fpdf import FPDF
 import io
 
+st.set_page_config(
+    page_title="Desafio do CTIC Sistemas",
+    page_icon="📊",
+    layout="wide"
+)
+
 FILE_PATH = Path().cwd() / "data" / "BASE_TESTE_HUGO1.csv"
 
 def alunos_por_disciplina(df: pd.DataFrame, sit_disciplina: str) -> pd.DataFrame:
