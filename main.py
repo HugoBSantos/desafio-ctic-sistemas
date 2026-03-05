@@ -26,21 +26,28 @@ def exportar_excel(df: pd.DataFrame) -> bytes:
 def exportar_pdf(df: pd.DataFrame) -> bytes:
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Helvetica", size=8)
+    pdf.set_auto_page_break(auto=True, margin=10)
 
-    col_width = pdf.epw / len(df.columns)
+    col_widths = {
+        "CODIGO_DISCIPLINA": 30,
+        "DISCIPLINA": 120,
+        "NOME_ABREV_ALUNO": 40,
+    }
+    # Fallback: divide igualmente para colunas não mapeadas
+    default_width = pdf.epw / len(df.columns)
+    widths = [col_widths.get(col, default_width) for col in df.columns]
 
     # Cabeçalho
     pdf.set_font("Helvetica", style="B", size=8)
-    for col in df.columns:
-        pdf.cell(col_width, 6, str(col), border=1)
+    for col, width in zip(df.columns, widths):
+        pdf.cell(width, 6, str(col), border=1)
     pdf.ln()
 
     # Linhas
     pdf.set_font("Helvetica", size=8)
     for _, row in df.iterrows():
-        for val in row:
-            pdf.cell(col_width, 6, str(val), border=1)
+        for val, width in zip(row, widths):
+            pdf.cell(width, 6, str(val), border=1)
         pdf.ln()
 
     return bytes(pdf.output())
