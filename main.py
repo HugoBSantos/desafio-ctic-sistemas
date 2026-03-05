@@ -44,6 +44,32 @@ def exportar_pdf(df: pd.DataFrame) -> bytes:
         pdf.ln()
 
     return bytes(pdf.output())
+
+def lista_alunos(df: pd.DataFrame, sit_disciplina: str, filtro_codigo: list, filtro_disciplina: list):
+    df_filtrado = alunos_por_disciplina(df, sit_disciplina=sit_disciplina)
+    df_filtrado = filtrar_df(df_filtrado, "CODIGO_DISCIPLINA", filtro_codigo)
+    df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
+    
+    st.dataframe(df_filtrado)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.download_button(
+            label="⬇️ Exportar Excel",
+            data=exportar_excel(df_filtrado),
+            file_name=f"{sit_disciplina}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key=f"excel_{sit_disciplina}"
+        )
+    with col2:
+        st.download_button(
+            label="⬇️ Exportar PDF",
+            data=exportar_pdf(df_filtrado),
+            file_name=f"{sit_disciplina}.pdf",
+            mime="application/pdf",
+            key=f"pdf_{sit_disciplina}"
+        )
     
 if __name__ == "__main__":
     st.header("📊 Dados dos alunos da EC5MA")
@@ -71,51 +97,17 @@ if __name__ == "__main__":
     
     with matriculados:
         st.markdown("#### Alunos matriculados por disciplina")
-
-        df_filtrado = alunos_por_disciplina(df_alunos, sit_disciplina="cursando")
-        df_filtrado = filtrar_df(df_filtrado, "CODIGO_DISCIPLINA", filtro_codigo)
-        df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
-        
-        st.dataframe(df_filtrado)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.download_button(
-                label="⬇️ Exportar Excel",
-                data=exportar_excel(df_filtrado),
-                file_name="matriculados.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-        with col2:
-            st.download_button(
-                label="⬇️ Exportar PDF",
-                data=exportar_pdf(df_filtrado),
-                file_name="matriculados.pdf",
-                mime="application/pdf"
-            )
+        lista_alunos(
+            df=df_alunos,
+            sit_disciplina="cursando",
+            filtro_codigo=filtro_codigo,
+            filtro_disciplina=filtro_disciplina
+        )
     with em_ajuste:
         st.markdown("#### Alunos em situação de ajuste por disciplina")
-
-        df_filtrado = alunos_por_disciplina(df_alunos, sit_disciplina="ajuste")
-        df_filtrado = filtrar_df(df_filtrado, "CODIGO_DISCIPLINA", filtro_codigo)
-        df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
-        
-        st.dataframe(df_filtrado)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.download_button(
-                label="⬇️ Exportar Excel",
-                data=exportar_excel(df_filtrado),
-                file_name="em_ajuste.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-        with col2:
-            st.download_button(
-                label="⬇️ Exportar PDF",
-                data=exportar_pdf(df_filtrado),
-                file_name="em_ajuste.pdf",
-                mime="application/pdf"
-            )
+        lista_alunos(
+            df=df_alunos,
+            sit_disciplina="ajuste",
+            filtro_codigo=filtro_codigo,
+            filtro_disciplina=filtro_disciplina
+        )
