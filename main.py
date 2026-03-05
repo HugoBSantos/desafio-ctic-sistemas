@@ -60,8 +60,6 @@ def exportar_pdf(df: pd.DataFrame) -> bytes:
 
 def lista_alunos(df: pd.DataFrame, sit_disciplina: str):
     df_filtrado = alunos_por_disciplina(df, sit_disciplina=sit_disciplina)
-    # df_filtrado = filtrar_df(df_filtrado, "CODIGO_DISCIPLINA", filtro_codigo)
-    # df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
     
     st.dataframe(df_filtrado)
     
@@ -108,51 +106,51 @@ if __name__ == "__main__":
     df_filtrado = filtrar_df(df_alunos, "CODIGO_DISCIPLINA", filtro_codigo)
     df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
     
-    st.header("Lista de alunos por disciplina")
-    matriculados, em_ajuste = st.tabs(["Matriculados", "Em ajuste"])
+    tab1, tab2 = st.tabs(["Tabelas", "Gráficos"])
     
-    with matriculados:
-        st.markdown("##### Alunos matriculados por disciplina")
-        lista_alunos(
-            df=df_filtrado,
-            sit_disciplina="cursando"
-            # filtro_codigo=filtro_codigo,
-            # filtro_disciplina=filtro_disciplina
+    with tab1:
+        st.header("Lista de alunos por disciplina")
+        matriculados, em_ajuste = st.tabs(["Matriculados", "Em ajuste"])
+        
+        with matriculados:
+            st.markdown("##### Alunos matriculados por disciplina")
+            lista_alunos(
+                df=df_filtrado,
+                sit_disciplina="cursando"
+            )
+        with em_ajuste:
+            st.markdown("##### Alunos em situação de ajuste por disciplina")
+            lista_alunos(
+                df=df_filtrado,
+                sit_disciplina="ajuste"
+            )
+        st.divider()
+        
+        st.header("Grade curricular de cada aluno")
+        
+        cols_disciplinas = ["CODIGO_DISCIPLINA", "DISCIPLINA", "SIT_DISCIPLINA"]
+        grade_aluno = st.selectbox(
+            "Selecione o aluno:",
+            df_filtrado["NOME_ABREV_ALUNO"].unique()
         )
-    with em_ajuste:
-        st.markdown("##### Alunos em situação de ajuste por disciplina")
-        lista_alunos(
-            df=df_filtrado,
-            sit_disciplina="ajuste"
-            # filtro_codigo=filtro_codigo,
-            # filtro_disciplina=filtro_disciplina
+        
+        st.write(f"Exibindo a grade curricular do(a) aluno(a) {grade_aluno}:")
+        st.dataframe(df_filtrado[df_filtrado["NOME_ABREV_ALUNO"] == grade_aluno][cols_disciplinas]
+                    .sort_values(by="SIT_DISCIPLINA", ascending=False))
+    
+    with tab2:
+        # TOTAL DE ALUNOS POR DISCIPLINA
+        df_alunos_disciplina = (
+            df_filtrado.groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
+            .count()
+            .reset_index()
+            .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
+            .sort_values(by="TOTAL")
         )
-    st.divider()
-    
-    st.header("Grade curricular de cada aluno")
-    
-    cols_disciplinas = ["CODIGO_DISCIPLINA", "DISCIPLINA", "SIT_DISCIPLINA"]
-    grade_aluno = st.selectbox(
-        "Selecione o aluno:",
-        df_filtrado["NOME_ABREV_ALUNO"].unique()
-    )
-    
-    st.write(f"Exibindo a grade curricular do(a) aluno(a) {grade_aluno}:")
-    st.dataframe(df_filtrado[df_filtrado["NOME_ABREV_ALUNO"] == grade_aluno][cols_disciplinas]
-                 .sort_values(by="SIT_DISCIPLINA", ascending=False))
-    st.divider()
-    
-    df_alunos_disciplina = (
-        df_filtrado.groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
-        .count()
-        .reset_index()
-        .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
-        .sort_values(by="TOTAL")
-    )
-    
-    fig_alunos_disciplina = px.bar(
-        df_alunos_disciplina, x="TOTAL", y="DISCIPLINA",
-        orientation="h", text="TOTAL", title="Total de alunos por disciplina",
-        labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
-    )
-    st.plotly_chart(fig_alunos_disciplina, use_container_width=True)
+        
+        fig_alunos_disciplina = px.bar(
+            df_alunos_disciplina, x="TOTAL", y="DISCIPLINA",
+            orientation="h", text="TOTAL", title="Total de alunos por disciplina",
+            labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
+        )
+        st.plotly_chart(fig_alunos_disciplina, use_container_width=True)
