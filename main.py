@@ -8,8 +8,13 @@ FILE_PATH = Path().cwd() / "data" / "BASE_TESTE_HUGO1.csv"
 def alunos_por_disciplina(df: pd.DataFrame, sit_disciplina: str) -> pd.DataFrame:
     df_alunos = df[df["SIT_DISCIPLINA"] == sit_disciplina.upper()]
     cols = ["CODIGO_DISCIPLINA", "DISCIPLINA", "NOME_ABREV_ALUNO"]
-    return df_matriculados[cols].sort_values(by="DISCIPLINA")
+    return df_alunos[cols].sort_values(by=["DISCIPLINA", "NOME_ABREV_ALUNO"])
 
+def filtrar_df(df: pd.DataFrame, coluna: str, valores: list) -> pd.DataFrame:
+    if not valores:
+        return df
+    return df[df[coluna].isin(valores)]
+    
 if __name__ == "__main__":
     st.header("📊 Dados dos alunos da EC5MA")
     df_alunos = pd.read_csv(Path(FILE_PATH), encoding="latin1", sep="\t")
