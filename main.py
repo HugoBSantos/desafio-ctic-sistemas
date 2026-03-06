@@ -106,7 +106,7 @@ if __name__ == "__main__":
     df_filtrado = filtrar_df(df_alunos, "CODIGO_DISCIPLINA", filtro_codigo)
     df_filtrado = filtrar_df(df_filtrado, "DISCIPLINA", filtro_disciplina)
     
-    tab1, tab2 = st.tabs(["Tabelas", "Gráficos"])
+    tab1, tab2 = st.tabs(["Tabelas", "Indicadores"])
     
     with tab1:
         st.header("Lista de alunos por disciplina")
@@ -139,41 +139,48 @@ if __name__ == "__main__":
                     .sort_values(by="SIT_DISCIPLINA", ascending=False))
     
     with tab2:
-        # TOTAL DE ALUNOS POR DISCIPLINA
-        df_alunos_disciplina = (
-            df_filtrado.groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
-            .count()
-            .reset_index()
-            .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
-            .sort_values(by="TOTAL")
-        )
+        st.header("Indicadores estratégicos")
         
-        fig_alunos_disciplina = px.bar(
-            df_alunos_disciplina, x="TOTAL", y="DISCIPLINA",
-            orientation="h", text="TOTAL", title="Total de alunos por disciplina",
-            labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
-        )
-        st.plotly_chart(fig_alunos_disciplina, use_container_width=True)
+        total_alunos = df_filtrado["NOME_ABREV_ALUNO"].nunique()
+        total_em_ajuste = df_filtrado[df_filtrado["SIT_DISCIPLINA"] == "AJUSTE"]["NOME_ABREV_ALUNO"].nunique()
+        perc_ajuste = round(total_em_ajuste / total_alunos * 100, 1)
         
-        # DISCIPLINAS COM MAIS AJUSTES
-        df_disciplinas_ajustes = (
-            df_filtrado[df_filtrado["SIT_DISCIPLINA"] == "AJUSTE"]
-            .groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
-            .count()
-            .reset_index()
-            .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
-            .sort_values(by="TOTAL")
-        )
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total de alunos", total_alunos)
+        col2.metric("Alunos em ajuste", total_em_ajuste)
+        col3.metric("% de alunos em ajuste", f"{perc_ajuste}%")
         
-        fig_disciplinas_ajustes = px.bar(
-            df_disciplinas_ajustes, x="TOTAL", y="DISCIPLINA",
-            orientation="h", text="TOTAL", title="Disciplinas com mais ajustes",
-            labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
-        )
-        st.plotly_chart(fig_disciplinas_ajustes, use_container_width=True)
-
-        # % DE ALUNOS EM AJUSTE POR CURSO
-
-        # RANKING DE DISCIPLINAS
-
-        # PERCENTUAL DE AJUSTE
+        col_esq, col_dir = st.columns(2)
+        with col_esq:
+            # TOTAL DE ALUNOS POR DISCIPLINA
+            df_alunos_disciplina = (
+                df_filtrado.groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
+                .count()
+                .reset_index()
+                .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
+                .sort_values(by="TOTAL")
+            )
+            
+            fig_alunos_disciplina = px.bar(
+                df_alunos_disciplina, x="TOTAL", y="DISCIPLINA",
+                orientation="h", text="TOTAL", title="Total de alunos por disciplina",
+                labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
+            )
+            st.plotly_chart(fig_alunos_disciplina, use_container_width=True)
+        with col_dir:
+            # DISCIPLINAS COM MAIS AJUSTES
+            df_disciplinas_ajustes = (
+                df_filtrado[df_filtrado["SIT_DISCIPLINA"] == "AJUSTE"]
+                .groupby("DISCIPLINA")["NOME_ABREV_ALUNO"]
+                .count()
+                .reset_index()
+                .rename(columns={"NOME_ABREV_ALUNO": "TOTAL"})
+                .sort_values(by="TOTAL")
+            )
+            
+            fig_disciplinas_ajustes = px.bar(
+                df_disciplinas_ajustes, x="TOTAL", y="DISCIPLINA",
+                orientation="h", text="TOTAL", title="Disciplinas com mais ajustes",
+                labels={"TOTAL": "Quantidade de alunos", "DISCIPLINA": "Disciplina"}
+            )
+            st.plotly_chart(fig_disciplinas_ajustes, use_container_width=True)
