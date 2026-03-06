@@ -1,4 +1,4 @@
-# 📚 Desafio do CTIC Sistemas: Dashboard de alunos da EC5MA  
+# 📚 Desafio de Sistemas: Dashboard de alunos da EC5MA  
 
 ### 1. Clone o repositório:  
 `git clone https://github.com/HugoBSantos/desafio-ctic-sistemas.git`  
