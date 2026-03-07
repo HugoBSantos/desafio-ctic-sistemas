@@ -1,13 +1,13 @@
 # 📚 Desafio de Sistemas: Dashboard de alunos da EC5MA  
 
 ### 1. Clone o repositório:  
-`git clone https://github.com/HugoBSantos/desafio-ctic-sistemas.git`  
+`git clone https://github.com/HugoBSantos/desafio-sistemas.git`  
 
 ### 2. Coloque o dataset na pasta "data/"  
 
 ### 3. Rode a aplicação no Docker:  
-`docker build -t desafio-ctic .`  
-`docker run -d -p 8501:8501 desafio-ctic`  
+`docker build -t desafio-sistemas .`  
+`docker run -d -p 8501:8501 desafio-sistemas`  
 
 ### 4. Acesse a aplicação localmente em:  
 http://localhost:8501/  
